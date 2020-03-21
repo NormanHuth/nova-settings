@@ -7,8 +7,8 @@
         :name="panel.name"
         :key="panel.name"
         :fields="panel.fields"
-        :resource-name="'nova-settings'"
-        :resource-id="'settings'"
+        :resource-name="'nova-valuestore'"
+        :resource-id="'valuestore'"
         mode="form"
         class="mb-6"
         :validation-errors="validationErrors"
@@ -59,7 +59,7 @@ export default {
       const {
         data: { fields, panels },
       } = await Nova.request()
-        .get('/nova-vendor/nova-settings/settings?editing=true&editMode=update')
+        .get('/nova-vendor/nova-valuestore/settings?editing=true&editMode=update')
         .catch(error => {
           if (error.response.status == 404) {
             this.$router.push({ name: '404' });
@@ -103,7 +103,7 @@ export default {
     },
 
     updateRequest() {
-      return Nova.request().post('/nova-vendor/nova-settings/settings', this.formData);
+      return Nova.request().post('/nova-vendor/nova-valuestore/settings', this.formData);
     },
   },
   computed: {

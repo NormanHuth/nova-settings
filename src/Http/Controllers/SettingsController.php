@@ -1,21 +1,28 @@
 <?php
 
-namespace OptimistDigital\NovaSettings\Http\Controllers;
+namespace NormanHuth\NovaValuestore\Http\Controllers;
 
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
-use OptimistDigital\NovaSettings\Models\Settings;
-use OptimistDigital\NovaSettings\NovaSettings;
+use NormanHuth\NovaValuestore\NovaValuestore;
 use Laravel\Nova\Contracts\Resolvable;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\ResolvesFields;
 use Illuminate\Http\Resources\ConditionallyLoadsAttributes;
 use Laravel\Nova\Fields\FieldCollection;
 use Illuminate\Support\Facades\Validator;
+use Spatie\Valuestore\Valuestore;
 
 class SettingsController extends Controller
 {
     use ResolvesFields, ConditionallyLoadsAttributes;
+
+    protected $setting = '';
+
+    public function __construct()
+    {
+        $this->setting = Valuestore::make(config('nova-valuestore.settings_file'));
+    }
 
     public function get(Request $request)
     {
@@ -24,14 +31,12 @@ class SettingsController extends Controller
 
         $addResolveCallback = function (&$field) {
             if (!empty($field->attribute)) {
-                $setting = Settings::where('key', $field->attribute)->first();
-                $field->resolve([$field->attribute => isset($setting) ? $setting->value : '']);
+                $field->resolve([$field->attribute => $this->setting->get($field->attribute)]);
             }
 
             if (!empty($field->meta['fields'])) {
                 foreach ($field->meta['fields'] as $_field) {
-                    $setting = Settings::where('key', $_field->attribute)->first();
-                    $_field->resolve([$_field->attribute => isset($setting) ? $setting->value : '']);
+                    $_field->resolve([$_field->attribute => $this->setting->get($_field->attribute)]);
                 }
             }
         };
@@ -52,15 +57,19 @@ class SettingsController extends Controller
 
         // NovaDependencyContainer support
         $fields = $fields->map(function ($field) {
-            if (!empty($field->attribute)) return $field;
-            if (!empty($field->meta['fields'])) return $field->meta['fields'];
+            if (!empty($field->attribute)) {
+                return $field;
+            }
+            if (!empty($field->meta['fields'])) {
+                return $field->meta['fields'];
+            }
             return null;
         })->filter()->flatten();
 
         $rules = [];
         foreach ($fields as $field) {
             $fakeResource = new \stdClass;
-            $fakeResource->{$field->attribute} = nova_get_setting($field->attribute);
+            $fakeResource->{$field->attribute} = $this->setting->get($field->attribute);
             $field->resolve($fakeResource, $field->attribute); // For nova-translatable support
             $rules = array_merge($rules, $field->getUpdateRules($request));
         }
@@ -68,30 +77,35 @@ class SettingsController extends Controller
         Validator::make($request->all(), $rules)->validate();
 
         $fields->whereInstanceOf(Resolvable::class)->each(function ($field) use ($request) {
-            if (empty($field->attribute)) return;
-            if ($field->isReadonly(app(NovaRequest::class))) return;
+            if (empty($field->attribute)) {
+                return;
+            }
+            if ($field->isReadonly(app(NovaRequest::class))) {
+                return;
+            }
 
             // For nova-translatable support
-            if (!empty($field->meta['translatable']['original_attribute'])) $field->attribute = $field->meta['translatable']['original_attribute'];
+            if (!empty($field->meta['translatable']['original_attribute'])) {
+                $field->attribute = $field->meta['translatable']['original_attribute'];
+            }
 
-            $existingRow = Settings::where('key', $field->attribute)->first();
+            //$existingRow = $this->setting->get($field->attribute);;
 
             $tempResource =  new \stdClass;
             $field->fill($request, $tempResource);
 
-            if (!property_exists($tempResource, $field->attribute)) return;
+            if (!property_exists($tempResource, $field->attribute)) {
+                return;
+            }
 
-            if (isset($existingRow)) {
-                $existingRow->update(['value' => $tempResource->{$field->attribute}]);
+            if ($tempResource->{$field->attribute}) {
+                $this->setting->put($field->attribute, $tempResource->{$field->attribute});
             } else {
-                Settings::create([
-                    'key' => $field->attribute,
-                    'value' => $tempResource->{$field->attribute},
-                ]);
+                $this->setting->forget($field->attribute);
             }
         });
 
-        if (config('nova-settings.reload_page_on_save', false) === true) {
+        if (config('nova-valuestore.reload_page_on_save', false) === true) {
             return response()->json(['reload' => true]);
         }
 
@@ -100,18 +114,19 @@ class SettingsController extends Controller
 
     public function deleteImage(Request $request, $fieldName)
     {
-        $existingRow = Settings::where('key', $fieldName)->first();
-        if (isset($existingRow)) $existingRow->update(['value' => null]);
+        $this->setting->forget($fieldName);
+        /*$existingRow = Settings::where('key', $fieldName)->first();
+        if (isset($existingRow)) $existingRow->update(['value' => null]);*/
         return response('', 204);
     }
 
     protected function availableFields()
     {
-        return new FieldCollection(($this->filter(NovaSettings::getFields())));
+        return new FieldCollection(($this->filter(NovaValuestore::getFields())));
     }
 
     protected function fields(Request $request)
     {
-        return NovaSettings::getFields();
+        return NovaValuestore::getFields();
     }
 }

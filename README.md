@@ -1,39 +1,29 @@
-# Nova Settings
+# Nova Valuestore Settings
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/optimistdigital/nova-settings.svg?style=flat-square)](https://packagist.org/packages/optimistdigital/nova-settings)
-[![Total Downloads](https://img.shields.io/packagist/dt/optimistdigital/nova-settings.svg?style=flat-square)](https://packagist.org/packages/optimistdigital/nova-settings)
-
-This [Laravel Nova](https://nova.laravel.com) package allows you to create custom settings in code (using Nova's native fields) and creates a UI for the users where the settings can be edited.
+This [Laravel Nova](https://nova.laravel.com) package allow you to edit a config file (JSON) by using [valuestore](https://github.com/spatie/valuestore)
 
 ## Requirements
 
-- Laravel Nova >= **2.9**
+    "laravel/nova": "^2.0.11 || ^3.0",
+    "spatie/valuestore": "^1.0"
 
 ## Features
 
 - Settings fields management in code
 - UI for editing settings
-- Helpers for accessing settings
 - Rule validation support
 - Supports [nova-translatable](https://github.com/optimistdigital/nova-translatable) w/ rule validation
 
-## Screenshots
+## Screenshot
 
-![Settings View](docs/index.png)
+![Settings View](docs/index.jpg)
 
 ## Installation
 
 Install the package in a Laravel Nova project via Composer:
 
 ```bash
-composer require optimistdigital/nova-settings
-```
-
-Publish the database migration(s) and run migrate:
-
-```bash
-php artisan vendor:publish --provider="OptimistDigital\NovaSettings\ToolServiceProvider" --tag="migrations"
-php artisan migrate
+composer require normanhuth/nova-valuestore-settings
 ```
 
 Register the tool with Nova in the `tools()` method of the `NovaServiceProvider`:
@@ -45,7 +35,7 @@ public function tools()
 {
     return [
         // ...
-        new \OptimistDigital\NovaSettings\NovaSettings
+        new \NormanHuth\NovaValuestore\NovaValuestore
     ];
 }
 ```
@@ -54,78 +44,62 @@ public function tools()
 
 ### Registering fields
 
-Define the fields in your `NovaServiceProvider`'s `boot()` function by calling `NovaSettings::setSettingsFields()`.
+Define the fields in your `NovaServiceProvider`'s `boot()` function by calling `NovaValuestore::setSettingsFields()`.
 
 ```php
-// Using an array
-\OptimistDigital\NovaSettings\NovaSettings::addSettingsFields([
-    Text::make('Some setting', 'some_setting'),
-    Number::make('A number', 'a_number'),
-]);
-
-// OR
-
-// Using a callable
-\OptimistDigital\NovaSettings\NovaSettings::addSettingsFields(function() {
-  return [
-    Text::make('Some setting', 'some_setting'),
-    Number::make('A number', 'a_number'),
-  ];
-});
+        NormanHuth\NovaValuestore\NovaValuestore::addSettingsFields([
+            Text::make('Public Name'),
+        ]);
 ```
 
-### Casts
-
-If you want the value of the setting to be formatted before it's returned, pass an array similar to `Eloquent`'s `$casts` property as the second parameter.
-
-```php
-\OptimistDigital\NovaSettings\NovaSettings::addSettingsFields([
-    // ... fields
-], [
-  'some_boolean_value' => 'boolean',
-  'some_float' => 'float',
-  'some_collection' => 'collection',
-  // ...
-]);
-```
-
-### Helper functions
-
-#### nova_get_settings(\$keys = null)
-
-Call `nova_get_settings()` to get all the settings formated as a regular array. If you pass in `$keys` as an array, it will return only the keys listed.
-
-#### nova_get_setting(\$key)
-
-To get a single setting's value, call `nova_get_setting('some_setting_key')`. It will return either a value or null if there's no setting with such key.
 
 ## Configuration
 
 The config file can be published using the following command:
 
 ```bash
-php artisan vendor:publish --provider="OptimistDigital\NovaSettings\ToolServiceProvider" --tag="config"
+php artisan vendor:publish --provider="NormanHuth\NovaValuestore\ToolServiceProvider" --tag="config"
 ```
 
 Config options:
-| Name | Type | Default | Description |
-| - | - | - | - |
-| `reload_page_on_save` | Boolean | false | Reload the entire page on save. Useful when updating any Nova UI related settings. |
+```
+    'reload_page_on_save' => false,
+    'settings_file'       => config_path('settings.json'),
+```
+
+## Password field
+```
+    NormanHuth\NovaValuestore\Fields\PlainPassword::make('ass'),
+```
+
+#####Alternative to [opanegro/field-nova-password-show-hide](https://github.com/opanegro/field-nova-password-show-hide)
+Install
+```bash
+composer require normanhuth/settings-valuestore-pwd-show-hide:dev-master
+```
+Usage:
+```
+    NormanHuth\PlainFieldNovaPasswordShowHide\PlainFieldNovaPasswordShowHide::make('ass'),
+```
+
+#
 
 ## Localization
 
 The translation file(s) can be published by using the following command:
 
 ```bash
-php artisan vendor:publish --provider="OptimistDigital\NovaSettings\ToolServiceProvider" --tag="translations"
+php artisan vendor:publish --provider="NormanHuth\NovaValuestore\ToolServiceProvider" --tag="translations"
 ```
 
 You can add your translations to `resources/lang/vendor/nova-settings/` by creating a new translations file with the locale name (ie `et.json`) and copying the JSON from the existing `en.json`.
 
 ## Credits
 
+This Package is a fork of [optimistdigital/nova-settings](https://github.com/optimistdigital/nova-settings)
+
 - [Tarvo Reinpalu](https://github.com/Tarpsvo)
 
 ## License
 
-Nova Settings is open-sourced software licensed under the [MIT license](LICENSE.md).
+Nova Valuestore Settings and Nova Settings is open-sourced software licensed under the [MIT license](LICENSE.md).

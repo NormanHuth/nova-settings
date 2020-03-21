@@ -1,27 +1,37 @@
 {
-  "name": "optimistdigital/nova-settings",
+  "name": "normanhuth/nova-valuestore-settings",
   "description": "A Laravel Nova tool for editing custom settings using native Nova fields.",
   "keywords": [
     "laravel",
-    "nova"
+    "nova",
+    "spatie",
+    "valuestore"
   ],
   "license": "MIT",
+  "authors": [
+    {
+      "name": "Norman Huth",
+      "email": "norman@huth.it",
+      "homepage": "https://huth.it"
+    },
+    {
+      "name": "Tarvo Reinpalu"
+    }
+  ],
   "require": {
     "php": ">=7.1.0",
-    "laravel/nova": "^2.0.11 || ^3.0"
+    "laravel/nova": "^2.0.11 || ^3.0",
+    "spatie/valuestore": "^1.0"
   },
   "autoload": {
     "psr-4": {
-      "OptimistDigital\\NovaSettings\\": "src/"
-    },
-    "files": [
-      "./src/helpers.php"
-    ]
+      "NormanHuth\\NovaValuestore\\": "src/"
+    }
   },
   "extra": {
     "laravel": {
       "providers": [
-        "OptimistDigital\\NovaSettings\\ToolServiceProvider"
+        "NormanHuth\\NovaValuestore\\ToolServiceProvider"
       ]
     }
   },

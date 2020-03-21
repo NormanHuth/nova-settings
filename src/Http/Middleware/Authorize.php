@@ -1,9 +1,9 @@
 <?php
 
-namespace OptimistDigital\NovaSettings\Http\Middleware;
+namespace NormanHuth\NovaValuestore\Http\Middleware;
 
 use Laravel\Nova\Nova;
-use OptimistDigital\NovaSettings\NovaSettings;
+use NormanHuth\NovaValuestore\NovaValuestore;
 
 class Authorize
 {
@@ -29,6 +29,6 @@ class Authorize
      */
     public function matchesTool($tool)
     {
-        return $tool instanceof NovaSettings;
+        return $tool instanceof NovaValuestore;
     }
 }

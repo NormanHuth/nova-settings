@@ -13,11 +13,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::namespace('\OptimistDigital\NovaSettings\Http\Controllers')->group(function () {
-    Route::prefix('nova-vendor/nova-settings')->group(function () {
+Route::namespace('\NormanHuth\NovaValuestore\Http\Controllers')->group(function () {
+    Route::prefix('nova-vendor/nova-valuestore')->group(function () {
         Route::get('/settings', 'SettingsController@get');
         Route::post('/settings', 'SettingsController@save');
     });
 
-    Route::delete('/nova-api/nova-settings/settings/field/{fieldName}', 'SettingsController@deleteImage');
+    Route::delete('/nova-api/nova-valuestore/settings/field/{fieldName}', 'SettingsController@deleteImage');
 });

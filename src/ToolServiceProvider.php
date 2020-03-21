@@ -1,12 +1,12 @@
 <?php
 
-namespace OptimistDigital\NovaSettings;
+namespace NormanHuth\NovaValuestore;
 
 use Laravel\Nova\Nova;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
-use OptimistDigital\NovaSettings\Http\Middleware\Authorize;
+use NormanHuth\NovaValuestore\Http\Middleware\Authorize;
 
 class ToolServiceProvider extends ServiceProvider
 {
@@ -18,17 +18,11 @@ class ToolServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->loadTranslations();
-        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'nova-settings');
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'nova-valuestore');
 
         $this->registerRoutes();
 
         if ($this->app->runningInConsole()) {
-            // Publish migrations
-            $this->publishes([
-                __DIR__ . '/../database/migrations' => database_path('migrations'),
-            ], 'migrations');
-
             // Publish config
             $this->publishes([
                 __DIR__ . '/../config/' => config_path(),
@@ -47,15 +41,23 @@ class ToolServiceProvider extends ServiceProvider
     protected function loadTranslations()
     {
         if ($this->app->runningInConsole()) {
-            $this->publishes([__DIR__ . '/../resources/lang' => resource_path('lang/vendor/nova-settings')], 'translations');
+            $this->publishes([__DIR__ . '/../resources/lang' => resource_path('lang/vendor/nova-valuestore')], 'translations');
         } else if (method_exists('Nova', 'translations')) {
             $locale = app()->getLocale();
             $fallbackLocale = config('app.fallback_locale');
 
-            if ($this->attemptToLoadTranslations($locale, 'project')) return;
-            if ($this->attemptToLoadTranslations($locale, 'local')) return;
-            if ($this->attemptToLoadTranslations($fallbackLocale, 'project')) return;
-            if ($this->attemptToLoadTranslations($fallbackLocale, 'local')) return;
+            if ($this->attemptToLoadTranslations($locale, 'project')) {
+                return;
+            }
+            if ($this->attemptToLoadTranslations($locale, 'local')) {
+                return;
+            }
+            if ($this->attemptToLoadTranslations($fallbackLocale, 'project')) {
+                return;
+            }
+            if ($this->attemptToLoadTranslations($fallbackLocale, 'local')) {
+                return;
+            }
             $this->attemptToLoadTranslations('en', 'local');
         }
     }
@@ -63,8 +65,8 @@ class ToolServiceProvider extends ServiceProvider
     protected function attemptToLoadTranslations($locale, $from)
     {
         $filePath = $from === 'local'
-            ? __DIR__ . '/../resources/lang/' . $locale . '.json'
-            : resource_path('lang/vendor/nova-settings') . '/' . $locale . '.json';
+            ? __DIR__ . '/../resources/lang/'.$locale.'.json'
+            : resource_path('lang/vendor/nova-valuestore').'/'.$locale.'.json';
 
         $localeFileExists = File::exists($filePath);
         if ($localeFileExists) {

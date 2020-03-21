@@ -6,4 +6,5 @@ return [
      */
 
     'reload_page_on_save' => false,
+    'settings_file'       => config_path('settings.json'),
 ];
