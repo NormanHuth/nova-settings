@@ -47,7 +47,7 @@ public function tools()
 Define the fields in your `NovaServiceProvider`'s `boot()` function by calling `NovaValuestore::setSettingsFields()`.
 
 ```php
-        NormanHuth\NovaValuestore\NovaValuestore::addSettingsFields([
+        \NormanHuth\NovaValuestore\NovaValuestore::addSettingsFields([
             Text::make('Public Name'),
         ]);
 ```
