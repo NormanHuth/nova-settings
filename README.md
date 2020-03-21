@@ -72,7 +72,7 @@ Config options:
     NormanHuth\NovaValuestore\Fields\PlainPassword::make('ass'),
 ```
 
-#####Alternative to [opanegro/field-nova-password-show-hide](https://github.com/opanegro/field-nova-password-show-hide)
+##### Alternative to [opanegro/field-nova-password-show-hide](https://github.com/opanegro/field-nova-password-show-hide)
 Install
 ```bash
 composer require normanhuth/settings-valuestore-pwd-show-hide:dev-master
